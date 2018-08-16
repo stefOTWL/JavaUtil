@@ -10,6 +10,8 @@ Instructions to run on Tomcat server:
     a. For generating PDF files use URL "http://localhost:8080/JavaUtil/PDFUtil"
     b.For generating Excel files use URL "http://localhost:8080/JavaUtil/ExcelUtil"
 6. Only supports HTTP GET requests!
+7. Java files can be found in "JavaUtil\src\main\java\" directory.
+8. Class files can be found in "JavaUtil\target\JavaUtil-1.0-SNAPSHOT\WEB-INF\classes\" directory.
 
 Libraries used:
 1. iText 7
@@ -22,3 +24,5 @@ Libraries used:
 
 All libraries can be viewed in the "JavaUtil\pom.xml" file.
 Jar files for dependencies are saved in the "JavaUtil-1.0-SNAPSHOT\WEB-INF\lib" directory.
+
+Note: All files required to import project in Netbeans are provided, however only the ones mentioned in Point 4 are required to run on Tomcat.
