@@ -1,4 +1,4 @@
-# JavaUtil
+# JavaUtil by Stefano Alvares
 
 Instructions to run on Tomcat server:
 
