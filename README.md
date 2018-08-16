@@ -11,3 +11,14 @@ Instructions to run on Tomcat server:
     b.For generating Excel files use URL "http://localhost:8080/JavaUtil/ExcelUtil"
 6. Only supports HTTP GET requests!
 
+Libraries used:
+1. iText 7
+    a. iText Core
+    b. layout
+    c. pdftest
+    d. kernel
+2. Javax
+3. mysql-connector
+
+All libraries can be viewed in the "JavaUtil\pom.xml" file.
+Jar files for dependencies are saved in the "JavaUtil-1.0-SNAPSHOT\WEB-INF\lib" directory.
