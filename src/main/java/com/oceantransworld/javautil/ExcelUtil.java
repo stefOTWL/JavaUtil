@@ -8,6 +8,7 @@ package com.oceantransworld.javautil;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -68,6 +69,7 @@ public class ExcelUtil extends HttpServlet {
         String proc_name = "";
         ArrayList<String> proc_params = new ArrayList<>();
         Enumeration<String> parameterNames = request.getParameterNames();
+        int worksheetNo = 0;
         while(parameterNames.hasMoreElements()){
             paramNames.add(parameterNames.nextElement());
             
@@ -84,90 +86,145 @@ public class ExcelUtil extends HttpServlet {
                 proc_params.add(request.getParameter(str));
             }
         }
+        
+            
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        POIXMLProperties poixmlp = workbook.getProperties();
+        POIXMLProperties.CoreProperties coreProperties = poixmlp.getCoreProperties();
+        coreProperties.setCreator("Sakura");
+        coreProperties.setTitle("ERP");
+        coreProperties.setSubjectProperty("ERP Reports");
+        coreProperties.setDescription("Report");
+        coreProperties.setCategory("Ex");
+        
         StringBuilder query = new StringBuilder("call "+proc_name+"(");
 
-            for(String str: proc_params){
-                query.append(str).append(",");
-            }
-            query.setLength(query.length()-1);
-            query.append(")");
+        for(String str: proc_params){
+            query.append(str).append(",");
+        }
+        query.setLength(query.length()-1);
+        query.append(")");
+            
             Class.forName("com.mysql.jdbc.Driver"); 
         try (Connection con = DriverManager.getConnection("jdbc:mysql://192.168.5.102:3306/sak_erp_v01","root","qwerty")) {
-            Statement stmt=con.createStatement();
-            ResultSet rs=stmt.executeQuery(query.toString());
-            ResultSetMetaData rsmd = rs.getMetaData();
-            XSSFWorkbook workbook = new XSSFWorkbook();
-            POIXMLProperties poixmlp = workbook.getProperties();
-            POIXMLProperties.CoreProperties coreProperties = poixmlp.getCoreProperties();
-            coreProperties.setCreator("Sakura");
-            coreProperties.setTitle("ERP");
-            coreProperties.setSubjectProperty("ERP Reports");
-            coreProperties.setDescription("Report");
-            coreProperties.setCategory("Ex");
-            XSSFSheet sheet = workbook.createSheet("Worksheet1");
-            Row row;
-            Cell cell;
-            CellStyle headerCell = workbook.createCellStyle();
-	    headerCell.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.index);
-            headerCell.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
-	    headerCell.setFillPattern(FillPatternType.THICK_BACKWARD_DIAG);
-	    Font headfont = workbook.createFont();
-            headfont.setBold(true);
-            headerCell.setFont(headfont);
-            
-            int rowNum = 0;
-            for(int i=0; i<headers.size(); i++){
-                sheet.addMergedRegion(new CellRangeAddress(rowNum, rowNum, 0, 25));
-                row = sheet.createRow(rowNum);
-                cell = row.createCell(0);
-                rowNum += 2;
-                cell.setCellValue(headers.get(i));
-                cell.setCellStyle(headerCell);
-            }
-            
-//            cell.setCellStyle(colHeaders);
-            
-            CellStyle colHeaders = workbook.createCellStyle();
-	    colHeaders.setFillBackgroundColor(IndexedColors.PALE_BLUE.index);
-            colHeaders.setFillForegroundColor(IndexedColors.PALE_BLUE.index);
-	    colHeaders.setFillPattern(FillPatternType.THICK_BACKWARD_DIAG);
-	    Font colfont = workbook.createFont();
-            colfont.setBold(true);
-            colfont.setColor(IndexedColors.RED.index);
-            colHeaders.setFont(colfont);
-            row = sheet.createRow(rowNum);
-            
-            for(int i = 0; i<rsmd.getColumnCount(); i++){
-                cell = row.createCell(i);
-                cell.setCellValue(rsmd.getColumnLabel(i+1));
-                cell.setCellStyle(colHeaders);
-            }
-            rowNum++;
-            
-            System.out.println("Creating excel");
-            
-            while(rs.next()){
-                row = sheet.createRow(rowNum++);
-                for(int i = 0; i<rsmd.getColumnCount();i++){
-                    cell = row.createCell(i);
-                    CellStyle colData = workbook.createCellStyle();
-                    colData.setAlignment(HorizontalAlignment.CENTER);
-                    cell.setCellValue(rs.getString(i+1));
-                    cell.setCellStyle(colData);
+            CallableStatement cs = con.prepareCall(query.toString());
+            boolean results = cs.execute();
+            while(results){
+                ResultSet rs = cs.getResultSet();
+                ResultSetMetaData rsmd = rs.getMetaData();
+                XSSFSheet sheet = workbook.createSheet("Worksheet"+(++worksheetNo));
+                Row row;
+                Cell cell;
+                CellStyle headerCell = workbook.createCellStyle();
+                headerCell.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.index);
+                headerCell.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
+                headerCell.setFillPattern(FillPatternType.THICK_BACKWARD_DIAG);
+                Font headfont = workbook.createFont();
+                headfont.setBold(true);
+                headerCell.setFont(headfont);
+
+                int rowNum = 0;
+                for(int i=0; i<headers.size(); i++){
+                    sheet.addMergedRegion(new CellRangeAddress(rowNum, rowNum, 0, 25));
+                    row = sheet.createRow(rowNum);
+                    cell = row.createCell(0);
+                    rowNum += 2;
+                    cell.setCellValue(headers.get(i));
+                    cell.setCellStyle(headerCell);
                 }
 
+                CellStyle colHeaders = workbook.createCellStyle();
+                colHeaders.setFillBackgroundColor(IndexedColors.PALE_BLUE.index);
+                colHeaders.setFillForegroundColor(IndexedColors.PALE_BLUE.index);
+                colHeaders.setFillPattern(FillPatternType.THICK_BACKWARD_DIAG);
+                Font colfont = workbook.createFont();
+                colfont.setBold(true);
+                colfont.setColor(IndexedColors.RED.index);
+                colHeaders.setFont(colfont);
+                row = sheet.createRow(rowNum);
 
-            }
-            for(int i = 0; i<rsmd.getColumnCount(); i++){
-                sheet.autoSizeColumn(i);
+                for(int i = 0; i<rsmd.getColumnCount(); i++){
+                    cell = row.createCell(i);
+                    cell.setCellValue(rsmd.getColumnLabel(i+1));
+                    cell.setCellStyle(colHeaders);
+                }
+                rowNum++;
+
+                while(rs.next()){
+                    row = sheet.createRow(rowNum++);
+                    for(int i = 0; i<rsmd.getColumnCount();i++){
+                        cell = row.createCell(i);
+                        CellStyle colData = workbook.createCellStyle();
+                        colData.setAlignment(HorizontalAlignment.CENTER);
+                        cell.setCellValue(rs.getString(i+1));
+                        cell.setCellStyle(colData);
+                    }
+                }
+                for(int i = 0; i<rsmd.getColumnCount(); i++){
+                    sheet.autoSizeColumn(i);
+                }
                 
+                rs.close();
+                results = cs.getMoreResults();
             }
-            
+            cs.close();
             workbook.write(response.getOutputStream());
             workbook.close();
-            
-
-            System.out.println("Done");
-        }    
+        }
     }
 }
+
+//Paste on line 113
+//XSSFSheet sheet = workbook.createSheet("Worksheet1");
+//            
+//Row row;
+//Cell cell;
+//CellStyle headerCell = workbook.createCellStyle();
+//headerCell.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.index);
+//headerCell.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
+//headerCell.setFillPattern(FillPatternType.THICK_BACKWARD_DIAG);
+//Font headfont = workbook.createFont();
+//headfont.setBold(true);
+//headerCell.setFont(headfont);
+//
+//int rowNum = 0;
+//for(int i=0; i<headers.size(); i++){
+//    sheet.addMergedRegion(new CellRangeAddress(rowNum, rowNum, 0, 25));
+//    row = sheet.createRow(rowNum);
+//    cell = row.createCell(0);
+//    rowNum += 2;
+//    cell.setCellValue(headers.get(i));
+//    cell.setCellStyle(headerCell);
+//}
+//
+//CellStyle colHeaders = workbook.createCellStyle();
+//colHeaders.setFillBackgroundColor(IndexedColors.PALE_BLUE.index);
+//colHeaders.setFillForegroundColor(IndexedColors.PALE_BLUE.index);
+//colHeaders.setFillPattern(FillPatternType.THICK_BACKWARD_DIAG);
+//Font colfont = workbook.createFont();
+//colfont.setBold(true);
+//colfont.setColor(IndexedColors.RED.index);
+//colHeaders.setFont(colfont);
+//row = sheet.createRow(rowNum);
+//
+//for(int i = 0; i<rsmd.getColumnCount(); i++){
+//    cell = row.createCell(i);
+//    cell.setCellValue(rsmd.getColumnLabel(i+1));
+//    cell.setCellStyle(colHeaders);
+//}
+//rowNum++;
+//
+//while(rs.next()){
+//    row = sheet.createRow(rowNum++);
+//    for(int i = 0; i<rsmd.getColumnCount();i++){
+//        cell = row.createCell(i);
+//        CellStyle colData = workbook.createCellStyle();
+//        colData.setAlignment(HorizontalAlignment.CENTER);
+//        cell.setCellValue(rs.getString(i+1));
+//        cell.setCellStyle(colData);
+//    }
+//}
+//for(int i = 0; i<rsmd.getColumnCount(); i++){
+//    sheet.autoSizeColumn(i);
+//
+//}
