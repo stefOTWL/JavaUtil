@@ -23,6 +23,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.poi.POIXMLProperties;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -91,13 +92,18 @@ public class ExcelUtil extends HttpServlet {
             query.setLength(query.length()-1);
             query.append(")");
             Class.forName("com.mysql.jdbc.Driver"); 
-//        String query = "select * from demo";
         try (Connection con = DriverManager.getConnection("jdbc:mysql://192.168.5.102:3306/sak_erp_v01","root","qwerty")) {
             Statement stmt=con.createStatement();
             ResultSet rs=stmt.executeQuery(query.toString());
             ResultSetMetaData rsmd = rs.getMetaData();
             XSSFWorkbook workbook = new XSSFWorkbook();
-
+            POIXMLProperties poixmlp = workbook.getProperties();
+            POIXMLProperties.CoreProperties coreProperties = poixmlp.getCoreProperties();
+            coreProperties.setCreator("Sakura");
+            coreProperties.setTitle("ERP");
+            coreProperties.setSubjectProperty("ERP Reports");
+            coreProperties.setDescription("Report");
+            coreProperties.setCategory("Ex");
             XSSFSheet sheet = workbook.createSheet("Worksheet1");
             Row row;
             Cell cell;
