@@ -1,10 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.oceantransworld.javautil;
-
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,7 +8,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.logging.Level;
@@ -34,20 +27,17 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 
 /**
  *
- * @author Stefano
+ * @author Stefano Alvares
+ * 
  */
-
 @WebServlet(name = "ExcelUtil", urlPatterns = {"/ExcelUtil"})
 public class ExcelUtil extends HttpServlet {
 
-    
-    @Override
+ @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, FileNotFoundException {
         ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", "*");
@@ -105,8 +95,8 @@ public class ExcelUtil extends HttpServlet {
         query.setLength(query.length()-1);
         query.append(")");
             
-            Class.forName("com.mysql.jdbc.Driver"); 
-        try (Connection con = DriverManager.getConnection("jdbc:mysql://192.168.5.102:3306/sak_erp_v01","root","qwerty")) {
+            Class.forName("com.mysql.jdbc.Driver");
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://192.168.5.202:3306/sak_erp_v01","root","qwerty")) {
             CallableStatement cs = con.prepareCall(query.toString());
             boolean results = cs.execute();
             while(results){

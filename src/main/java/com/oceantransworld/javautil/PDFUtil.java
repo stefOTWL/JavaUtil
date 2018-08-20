@@ -34,15 +34,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
 /**
  *
  * @author Stefano Alvares
+ * 
  */
-
-@WebServlet(urlPatterns = {"/PDFUtil"})
+@WebServlet(name = "PDFUtil", urlPatterns = {"/PDFUtil"})
 public class PDFUtil extends HttpServlet {
 
-    @Override
+ @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.getQueryString();
@@ -96,7 +97,7 @@ public class PDFUtil extends HttpServlet {
             query.append(")");
             Class.forName("com.mysql.jdbc.Driver");  
             Table table;
-            try (Connection con = DriverManager.getConnection("jdbc:mysql://192.168.5.102:3306/sak_erp_v01","root","qwerty")) {
+            try (Connection con = DriverManager.getConnection("jdbc:mysql://192.168.5.202:3306/sak_erp_v01","root","qwerty")) {
                 Statement stmt=con.createStatement();
                 ResultSet rs=stmt.executeQuery(query.toString());
                 ResultSetMetaData rsmd = rs.getMetaData();
