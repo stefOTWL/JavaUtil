@@ -30,7 +30,8 @@ import org.json.JSONObject;
 @WebServlet(name = "JSONUtil", urlPatterns = {"/JSONUtil"})
 public class JSONUtil extends HttpServlet {
 
-@Override
+    
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
@@ -40,8 +41,8 @@ public class JSONUtil extends HttpServlet {
         JSONArray main_array = new JSONArray();
         ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", "*");
         ((HttpServletResponse) response).addHeader("Access-Control-Allow-Methods","POST");
-        response.setContentType("application/json");
-        response.addHeader("Access-Control-Allow-Origin", "*");
+        response.setContentType("application/json;charset=UTF-8");
+
         
         
         
@@ -60,7 +61,7 @@ public class JSONUtil extends HttpServlet {
         query = new StringBuilder("call "+params.get(0)+"(");
         params.remove(0);
         for(String str: params){
-            query.append(str).append(",");
+            query.append("'").append(str).append("'").append(",");
         }
         query.setLength(query.length()-1);
         query.append(")");
@@ -97,11 +98,8 @@ public class JSONUtil extends HttpServlet {
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(JSONUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
-//        ((HttpServletResponse) response).setContentType("application/json");
-        
-//        response.setContentType("application/json");
+
         try (PrintWriter out = response.getWriter()) {
-            out.println(request.getParameterNames());
             out.print(main_array);
         }
     }
